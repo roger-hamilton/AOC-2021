@@ -6,32 +6,33 @@ interface Direction {
 }
 
 const parseLine = (line: string): Direction => {
-  const [dir, value] = line.split(' ')
-  return {
-    dir: dir as any,
-    value: parseInt(value)
-  }
+  const [dir, value] = line.split(' ');
+  return { dir: dir as Direction['dir'], value: parseInt(value) };
 };
 
-const step1 = ([x, depth]: [number, number], { dir, value }: Direction): [number, number] => {
+interface State1 { pos: number, depth: number }
+
+const step1 = ({ pos, depth }: State1, { dir, value }: Direction): State1 => {
   switch (dir) {
     case 'down':
-      return [x, depth + value];
+      return { pos, depth: depth + value };
     case 'up':
-      return [x, Math.max(0, depth - value)];
+      return { pos, depth: Math.max(0, depth - value) };
     case 'forward':
-      return [x + value, depth];
+      return { pos: pos + value, depth };
   }
 }
 
-const step2 = ([x, depth, aim]: [number, number, number], { dir, value }: Direction): [number, number, number] => {
+interface State2 extends State1 { aim: number }
+
+const step2 = ({ pos, depth, aim }: State2, { dir, value }: Direction): State2 => {
   switch (dir) {
     case 'down':
-      return [x, depth, aim + value];
+      return { pos, depth, aim: aim + value };
     case 'up':
-      return [x, depth, aim - value];
+      return { pos, depth, aim: aim - value };
     case 'forward':
-      return [x + value, depth + (aim * value), aim];
+      return { pos: pos + value, depth: depth + (aim * value), aim };
   }
 }
 
@@ -39,12 +40,12 @@ const main = async () => {
   const lines = await readLines('./Day2/input.txt');
   const input = lines.map(parseLine);
 
-  const p1 = input.reduce(step1, [0, 0] as [number, number]);
-  const part1 = p1[0] * p1[1];
+  const p1 = input.reduce(step1, {pos: 0, depth: 0 });
+  const part1 = p1.pos * p1.depth;
   console.log(`Part 1: ${part1}`);
 
-  const p2 = input.reduce(step2, [0, 0, 0] as [number, number, number]);
-  const part2 = p2[0] * p2[1];
+  const p2 = input.reduce(step2, { pos: 0, depth: 0, aim: 0 });
+  const part2 = p2.pos * p2.depth;
   console.log(`Part 2: ${part2}`);
 }
 
