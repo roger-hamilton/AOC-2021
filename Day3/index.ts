@@ -15,8 +15,9 @@ const part1 = (nums: number[], len: number) => {
   const epsilon = ~gamma & ((1 << len) - 1);
   return gamma * epsilon;
 }
-
+  
 const step2 = (comp: (a: number, b: number) => boolean) => (nums: number[], bit: number) => {
+  if (nums.length === 1) return nums;
   const mask = 1 << bit;
   const common = step1(nums, bit);
   return nums.filter(num => comp((num & mask), common));
@@ -26,7 +27,7 @@ const part2 = (nums: number[], len: number) => {
   const [ox] = [...Array(len).keys()]
     .reverse()
     .reduce(step2((a, b) => a === b), nums);
-    
+
   const [co2] = [...Array(len).keys()]
     .reverse()
     .reduce(step2((a, b) => a !== b), nums);
