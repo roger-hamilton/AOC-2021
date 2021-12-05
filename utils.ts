@@ -21,3 +21,22 @@ export const splitBy = (lines: string[], separator: string) => {
   groupes.push(currentGroup);
   return groupes;
 }
+
+export const range = (a: number, b: number): number[] =>
+  a > b
+  ? range(b, a).reverse()
+  : [...Array(b - a + 1).keys()].map(i => i + a);
+
+class Chain<T> {
+  constructor(private readonly value: T) { }
+
+  public pipe<U>(f: (value: T) => U): Chain<U> {
+    return new Chain(f(this.value));
+  }
+
+  public valueOf(): T {
+    return this.value;
+  }
+}
+
+export const chain = <T>(value: T): Chain<T> => new Chain(value);
