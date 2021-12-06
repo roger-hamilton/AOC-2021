@@ -40,3 +40,15 @@ class Chain<T> {
 }
 
 export const chain = <T>(value: T): Chain<T> => new Chain(value);
+
+export const memo = <A extends any[], T>(f: (...args: A) => T): (...args: A) => T => {
+  const cache = new Map<string, T>();
+  return (...args: A) => {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      const value = f(...args);
+      cache.set(key, value);
+    }
+    return cache.get(key)!;
+  };
+}
