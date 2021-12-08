@@ -50,13 +50,8 @@ const part2 = (input: Line[]) => findIntersections(input).size;
 const main = async () => {
   const lines = await readLines('./Day5/input.txt');
   const input = lines.map(parseLine);
-
-  console.time('part1');
   console.log(`Part 1: ${part1(input)}`);
-  console.timeEnd('part1');
-  console.time('part2');
   console.log(`Part 2: ${part2(input)}`);
-  console.timeEnd('part2');
 };
 
 main();
