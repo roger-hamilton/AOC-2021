@@ -52,3 +52,9 @@ export const memo = <A extends any[], T>(f: (...args: A) => T): (...args: A) => 
     return cache.get(key)!;
   };
 }
+
+export const sum = (arr: number[]) => arr.reduce((a, c) => a + c, 0);
+
+export const sumToN = (n: number) => (n * (n + 1)) / 2;
+
+export const minmax = (arr: number[]) => [Math.min(...arr), Math.max(...arr)] as const;
