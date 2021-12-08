@@ -58,3 +58,11 @@ export const sum = (arr: number[]) => arr.reduce((a, c) => a + c, 0);
 export const sumToN = (n: number) => (n * (n + 1)) / 2;
 
 export const minmax = (arr: number[]) => [Math.min(...arr), Math.max(...arr)] as const;
+
+export const invert = <K extends string | number | symbol, V extends string | number | symbol>(obj: Record<K, V>): Record<V, K> =>
+  (Object.entries(obj) as [K, V][]).reduce((a, [k, v]) => ({ ...a, [v]: k }), {} as Record<V, K>);
+
+
+export const diff = <T>(a: Set<T>, b: Set<T>) => new Set([...a].filter(x => !b.has(x)));
+export const union = <T>(...sets: Set<T>[]) => sets.reduce((a, c) => [...c].reduce((a2, c2) => a.add(c2), a), new Set<T>());
+export const single = <T>(set: Set<T>) => [...set][0];
