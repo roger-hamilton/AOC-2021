@@ -7,47 +7,58 @@ const nextToDirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const getNextTo = (x: number, y: number): [number, number][] =>
   nextToDirs.map(([dx, dy]) => [x + dx, y + dy]);
 
+interface Cell { risk: number; minRiskTo: number; near: Cell[]; }
+
 const calcRisks = (grid: number[][]) => {
-  const toCheck: [number, number][] = [];
-  const toCheckSet = new Set<string>();
   
-  const riskGrid = grid.map(row => row.map(risk => ({ risk, minRiskTo: Infinity })));
+  const riskGrid = grid.map(row =>
+    row.map(risk => ({ risk, minRiskTo: Infinity, near: [], } as Cell)));
+    
+  for(let y = 0; y < grid.length; y++) {
+    for(let x = 0; x < grid[y].length; x++) {
+      const cell = riskGrid[y][x];
+      cell.near = getNextTo(x, y)
+      .map(([x, y]) => riskGrid[y]?.[x])
+      .filter(x => x !== undefined);
+    }
+  }
+    
+  const toCheck: Cell[] = [riskGrid[0][0]];
+  const toCheckSet = new Set<Cell>(toCheck);
 
-  const update = (x: number, y: number) => {
-    const curr = riskGrid[y][x];
-    if (curr === undefined) return;
+  while (toCheck.length) {
+    const curr = toCheck.shift()!;
+    toCheckSet.delete(curr);
+    const near = curr.near;
 
-    const near = getNextTo(x, y).filter(([x, y]) => riskGrid[y]?.[x] !== undefined);
-    if (near.length === 0) return;
+    const minRisk = curr.near.reduce((acc, curr) => Math.min(acc, curr.minRiskTo), Infinity);
 
-    const minRisk = near
-      .map(([x, y]) => riskGrid[y]?.[x]?.minRiskTo)
-      .reduce((acc, curr) => Math.min(acc, curr), Infinity);
+    const originalRisk = curr.minRiskTo;
 
-    const oRisk = curr.minRiskTo;
+    curr.minRiskTo = minRisk < Infinity ? Math.min(minRisk + curr.risk, originalRisk) : 0;
 
-    curr.minRiskTo = minRisk < Infinity
-      ? Math.min(minRisk + curr.risk, oRisk)
-      : 0;
-
-    if (oRisk !== curr.minRiskTo) {
-      const toAdd = near.filter(([x, y]) => !toCheckSet.has(`${x},${y}`))
-      toCheck.push(...toAdd);
-      for(const k of toAdd.map(([x, y]) => `${x},${y}`)) {
+    if (originalRisk !== curr.minRiskTo) {
+      const toAdd = near.filter(c => !toCheckSet.has(c))
+      for(const k of toAdd) {
+        toCheck.push(k);
         toCheckSet.add(k);
       }
     };
   }
 
-  update(0, 0);
-  while (toCheck.length) {
-    const [x, y] = toCheck.shift()!;
-    toCheckSet.delete(`${x},${y}`);
-    update(x, y);
-  }
-
-  return riskGrid.map(row => row.map(({ minRiskTo }) => minRiskTo));
+  return riskGrid;
 }
+
+
+
+const last = <T>(arr: T[][]) => arr[arr.length - 1][arr[arr.length - 1].length - 1];
+
+const part1 = (grid: number[][]) =>
+  chain(grid)
+    .pipe(calcRisks)
+    .pipe(last)
+    .valueOf()
+    .minRiskTo;
 
 const expandGrid = (grid: number[][]) => {
   const newGrid = [] as number[][];
@@ -73,20 +84,13 @@ const expandGrid = (grid: number[][]) => {
   return newGrid;
 }
 
-const last = <T>(arr: T[][]) => arr[arr.length - 1][arr[arr.length - 1].length - 1];
-
-const part1 = (grid: number[][]) =>
-  chain(grid)
-    .pipe(calcRisks)
-    .pipe(last)
-    .valueOf();
-
 const part2 = (grid: number[][]) =>
   chain(grid)
     .pipe(expandGrid)
     .pipe(calcRisks)
     .pipe(last)
     .valueOf()
+    .minRiskTo
 
 readLines('./Day15/input.txt')
   .then(parseInput)
