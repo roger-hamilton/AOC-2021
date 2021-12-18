@@ -66,3 +66,5 @@ export const invert = <K extends string | number | symbol, V extends string | nu
 export const diff = <T>(a: Set<T>, b: Set<T>) => new Set([...a].filter(x => !b.has(x)));
 export const union = <T>(...sets: Set<T>[]) => sets.reduce((a, c) => [...c].reduce((a2, c2) => a.add(c2), a), new Set<T>());
 export const single = <T>(set: Set<T>) => [...set][0];
+
+export const pairs = <T>(arr: T[]) => arr.flatMap((x, i) => [...arr.slice(0, i), ...arr.slice(i + 1)].map(y => [x, y] as const));
